@@ -49,6 +49,21 @@ int main(){
     std::cout << ret << std::endl;
     std::cout << ret2 << std::endl;
 
+
+
+    std::regex re_smol { "[0-9]+" };
+
+    for (std::string& s : v){
+        // Default constructor. Constructs the end-of-sequence iterator.
+        std::regex_token_iterator<std::string::iterator> endofreg; 
+
+        std::regex_token_iterator<std::string::iterator> m (s.begin(), s.end(), re_smol);
+        while (m != endofreg){
+            //std::cout << *m << std::endl;
+            m++;
+        }
+    }
+
 }
 
 /*
