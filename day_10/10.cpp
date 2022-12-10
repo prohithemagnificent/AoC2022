@@ -6,9 +6,18 @@
 
 
 
-void drawOnScreen(int cycleNum, int spritePos){
-    
-
+int drawOnScreen(int cycleNum, int value, int nRow){
+    if ((cycleNum-1 - nRow*40) / 40 > 0){
+        nRow++;
+        std::cout << std::endl;
+    }
+    // (cycleNum % 40)-1   <- is position in row, 0 based
+    if ((cycleNum % 40)-1 >= value - 1 && (cycleNum % 40)-1 <= value + 1){
+        std::cout << "#";
+    }else{
+        std::cout << ".";
+    }
+    return nRow;
 }
 
 
@@ -39,48 +48,23 @@ int main(){
         if (s == "noop"){
             // part 1
             cycleNum++;
+
             // part 2:
-            if ((cycleNum-1 - nRow*40) / 40 > 0){
-                nRow++;
-                std::cout << std::endl;
-            }
-            // (cycleNum % 40)-1   <- is position in row, 0 based
-            if ((cycleNum % 40)-1 >= value - 1 && (cycleNum % 40)-1 <= value + 1){
-                std::cout << "#";
-            }else{
-                std::cout << ".";
-            }
+            nRow = drawOnScreen(cycleNum, value, nRow);
+
+            // part 1
             if (cycleNum >= cycleToCompare ){
                 res += cycleToCompare * value;
-                cycleToCompare += 40;
-
-                
-                                 
+                cycleToCompare += 40;  
             }
         }else{
             cycleNum++;
             // part 2:
-            if ((cycleNum-1 - nRow*40) / 40 > 0){
-                nRow++;
-                std::cout << std::endl;
-            }
-            if ((cycleNum % 40)-1 >= value - 1 && (cycleNum % 40)-1 <= value + 1){
-                std::cout << "#";
-            }else{
-                std::cout << ".";
-            }
+            nRow = drawOnScreen(cycleNum, value, nRow);
+
             cycleNum++;
             // part 2:
-            if ((cycleNum-1 - nRow*40) / 40 > 0){
-                nRow++;
-                std::cout << std::endl;
-            }
-            if ((cycleNum % 40)-1 >= value - 1 && (cycleNum % 40)-1 <= value + 1){
-                std::cout << "#";
-            }else{
-                std::cout << ".";
-            }
-
+            nRow = drawOnScreen(cycleNum, value, nRow);
 
             // part 1
             if (cycleNum >= cycleToCompare ){
@@ -91,8 +75,6 @@ int main(){
             int nToAdd = std::stoi(matchResults[1]);
             
             value += nToAdd;
-
-            
         }
 
 
