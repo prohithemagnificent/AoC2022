@@ -76,6 +76,8 @@ int main(){
         std::regex_match(line, matchResults, re1);
 
         p3d point;
+
+        // offset by +3 in each direction so floodfill can go around
         point.x = std::stoi(matchResults[1])+3;
         point.y = std::stoi(matchResults[2])+3;
         point.z = std::stoi(matchResults[3])+3;
@@ -142,9 +144,7 @@ int main(){
     }
 
     std::cout << "total free surface area: " << totalsides << std::endl; 
-    // 5158 toohigh
-    // 3258 toohigh
-    // 2126 toohigh
+
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
     std::cout << "Elapsed time (ms)= " << duration << std::endl;
