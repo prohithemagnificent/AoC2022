@@ -10,6 +10,20 @@
 #include <numeric>
 
 
+class RobotCollection_2{
+public:
+    int time = 24;
+    int ore = 0;
+    int clay = 0;
+    int obs = 0;
+    int geo = 0;
+
+    int oreRobots = 1;
+    int clayRobots = 0;
+    int obsRobots = 0;
+    int geoRobots = 0;
+};
+
 
 
 class RobotCollection{
@@ -117,7 +131,7 @@ public:
 
     int calculateAvailableMaxGeo(){
         
-        int maxFromCurrentRobots = geoRobots * time;
+        int maxFromCurrentRobots = geoRobots * (time-1);
         return geo + maxFromCurrentRobots;
     }
 
@@ -125,7 +139,7 @@ public:
         /*if (time > 10){
             return true;
         }*/
-        if (currentbest > calculatePossibleMaxGeo()){
+        if (currentbest >= calculatePossibleMaxGeo()){
             return false;
         }
         return true;
@@ -138,8 +152,8 @@ public:
 private:
     int calculatePossibleMaxGeo(){
         
-        int maxFromCurrentRobots = geoRobots * time;
-        int maxFromFutureRobots = time * (time + 1) / 2;  // optimistic: we build 1 geo robot each minute from now on
+        int maxFromCurrentRobots = geoRobots * (time-1);
+        int maxFromFutureRobots = (time-1) * ((time-1) + 1) / 2;  // optimistic: we build 1 geo robot each minute from now on
         return geo + maxFromCurrentRobots + maxFromFutureRobots;
     }
 
@@ -202,66 +216,76 @@ int main(){
 
         // other 22 minutes  -> in the last minute, it is not worth to build anything
         for (int j = 23 ; j > 1; j--){  // + 2 becouse we start at minute 2
+            if (j == 2){
+                std::cout <<"lel" << std::endl;
+            }
             while (possibilities.front().time == j + 1){
                 RobotCollection current = possibilities.front(); possibilities.pop_front();
 
                 // 5 possibilities: wait, build 1 of each robots
-                RobotCollection wait = current;
-                wait.waitForResources();
+                // build geo with highest prio -> others only if can't build geo
 
-                if (wait.isBetterThanCurrentBest(currentBestGeo)){
-                    possibilities.push_back(wait);
-                    currentBestGeo = wait.calculateAvailableMaxGeo();
-                }
+                    currentBestGeo = std::max(currentBestGeo, current.calculateAvailableMaxGeo());
                 
+                    RobotCollection wait = current;
+                    RobotCollection_2 r2;
+
 
                 
+                    wait.waitForResources();
 
-                if (current.ispossible_buildOreRobot()){
-                    RobotCollection ore = current;
-                    ore.buildOreRobot();
-                    
-                    if (ore.isBetterThanCurrentBest(currentBestGeo)){
-                        possibilities.push_back(ore);
-                        currentBestGeo = ore.calculateAvailableMaxGeo();
-                    }
-                }
-                if (current.ispossible_buildClayRobot()){
-                    RobotCollection clay = current;
-                    clay.buildClayRobot();
+                    if (wait.isBetterThanCurrentBest(currentBestGeo)){
+                        possibilities.push_back(wait);
+                        //currentBestGeo = std::max(currentBestGeo, wait.calculateAvailableMaxGeo());
+                    }       
+                
+                    if (current.ispossible_buildGeoRobot()){
+                        RobotCollection geo = current;
+                        geo.buildGeoRobot();
 
-                    if (clay.isBetterThanCurrentBest(currentBestGeo)){
-                        possibilities.push_back(clay);
-                        currentBestGeo = clay.calculateAvailableMaxGeo();
+                        if (geo.isBetterThanCurrentBest(currentBestGeo)){
+                            possibilities.push_back(geo);
+                            //currentBestGeo = std::max(currentBestGeo, geo.calculateAvailableMaxGeo());
+                        }
                     }
                     
-                }
-                if (current.ispossible_buildObsRobot()){
-                    RobotCollection obs = current;
-                    obs.buildObsRobot();
-
-                    if (obs.isBetterThanCurrentBest(currentBestGeo)){
-                        possibilities.push_back(obs);
-                        currentBestGeo = obs.calculateAvailableMaxGeo();
+                    if (current.ispossible_buildOreRobot()){
+                        RobotCollection ore = current;
+                        ore.buildOreRobot();
+                        
+                        if (ore.isBetterThanCurrentBest(currentBestGeo)){
+                            possibilities.push_back(ore);
+                            //currentBestGeo = std::max(currentBestGeo, ore.calculateAvailableMaxGeo());
+                        }
                     }
+                    if (current.ispossible_buildClayRobot()){
+                        RobotCollection clay = current;
+                        clay.buildClayRobot();
 
+                        if (clay.isBetterThanCurrentBest(currentBestGeo)){
+                            possibilities.push_back(clay);
+                            //currentBestGeo = std::max(currentBestGeo, clay.calculateAvailableMaxGeo());
+                        }
+                        
+                    }
+                    if (current.ispossible_buildObsRobot()){
+                        RobotCollection obs = current;
+                        obs.buildObsRobot();
+
+                        if (obs.isBetterThanCurrentBest(currentBestGeo)){
+                            possibilities.push_back(obs);
+                            currentBestGeo = std::max(currentBestGeo, obs.calculateAvailableMaxGeo());
+                        }
+
+                    }   
                     
-                }
-                if (current.ispossible_buildGeoRobot()){
-                    RobotCollection geo = current;
-                    geo.buildGeoRobot();
-
-                    if (geo.isBetterThanCurrentBest(currentBestGeo)){
-                        possibilities.push_back(geo);
-                        currentBestGeo = geo.calculateAvailableMaxGeo();
-                    }
-                    possibilities.push_back(geo);
-                }
+            }
+                
                 /*if (possibilities.size() % 100 == 0 && j <= 22){
                     std::cout << "possibilities.size(): " << possibilities.size() << std::endl;
                 }*/
 
-            }
+            
             std::cout << "i: " << i << ", j: " << j <<  ", possibilities.size(): " << possibilities.size() << std::endl;
             
         }
@@ -272,6 +296,8 @@ int main(){
         auto it = possibilities.begin();
 
         int currentMaxQualityLevel = 0;
+
+        it = it;
 
         while (it != possibilities.end()){
             int currentQualityLevel = (*it).returnQualityLevelAtOneMoreTimestep();
@@ -284,7 +310,7 @@ int main(){
     }
 
 
-
+    std::cout << "total q level: " << totalQualityLevel << std::endl;  // 556 too low   (1349??)
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
     std::cout << "Elapsed time (ms)= " << duration << std::endl;
