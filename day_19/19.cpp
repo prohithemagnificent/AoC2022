@@ -160,6 +160,19 @@ private:
 
 };
 
+// int ore_costInOre, int clay_costInOre, int obs_costInOre, int obs_costInClay, int geo_costInOre, int geo_costInObs
+bool compareTwoCollections(RobotCollection r1, RobotCollection r2){
+    //int score1 = r1.geoRobots*20*20*100000 + (/*r1.geo +*/ r1.obsRobots)*20*1000 + (/*r1.obs +*/ r1.clayRobots)*1.5*100 + (/*r1.clay +*/ r1.oreRobots)*1 /*+ r1.ore*20*/;
+    //int score2 = r2.geoRobots*20*20*100000 + (/*r2.geo +*/ r2.obsRobots)*20*1000 + (/*r2.obs +*/ r2.clayRobots)*1.5*100 + (/*r2.clay +*/ r2.oreRobots)*1 /*+ r2.ore*20*/;
+
+    int score1 = (r1.geo + r1.time*r1.geoRobots)*10000000 + r1.obsRobots*10000 + r1.clayRobots*100 + r1.oreRobots;
+    int score2 = (r2.geo + r1.time*r2.geoRobots)*10000000 + r2.obsRobots*10000 + r2.clayRobots*100 + r2.oreRobots;
+    
+
+
+    return score1 > score2;  // if r1 better -> goes first
+}
+
 
 int main(){
 
@@ -215,11 +228,8 @@ int main(){
         int currentBestGeo = 0;
 
         // other 22 minutes  -> in the last minute, it is not worth to build anything
-        for (int j = 23 ; j > 1; j--){  // + 2 becouse we start at minute 2
-            if (j == 2){
-                std::cout <<"lel" << std::endl;
-            }
-            while (possibilities.front().time == j + 1){
+        for (int j = 23 ; j > 1; j--){  
+            while (possibilities.front().time == j ){
                 RobotCollection current = possibilities.front(); possibilities.pop_front();
 
                 // 5 possibilities: wait, build 1 of each robots
@@ -284,6 +294,13 @@ int main(){
                 /*if (possibilities.size() % 100 == 0 && j <= 22){
                     std::cout << "possibilities.size(): " << possibilities.size() << std::endl;
                 }*/
+            const int maxsize = 200000;
+            if (possibilities.size() > maxsize+5){
+                std::sort(possibilities.begin(), possibilities.end(), compareTwoCollections);
+                possibilities.erase(possibilities.begin()+maxsize, possibilities.end());  // delete the worst ones
+            }
+            
+
 
             
             std::cout << "i: " << i << ", j: " << j <<  ", possibilities.size(): " << possibilities.size() << std::endl;
