@@ -14,7 +14,7 @@
 
 class RobotCollection{
 public:
-    int time = 0;
+    int time = 24;
     int ore = 0;
     int clay = 0;
     int obs = 0;
@@ -53,7 +53,7 @@ public:
         clay += clayRobots;
         obs += obsRobots;
         geo += geoRobots;
-        time++;
+        time--;
     }
 
     // dont build robot if (1) not enough resources, (2) we already produce enough for any other type of robot in each minute
@@ -116,30 +116,30 @@ public:
     
 
     int calculateAvailableMaxGeo(){
-        int timeRemaining = 24 - time; // t
-        int maxFromCurrentRobots = geoRobots * timeRemaining;
+        
+        int maxFromCurrentRobots = geoRobots * time;
         return geo + maxFromCurrentRobots;
     }
 
     bool isBetterThanCurrentBest(int currentbest){
-        if (time < 10){
+        /*if (time > 10){
             return true;
-        }
+        }*/
         if (currentbest > calculatePossibleMaxGeo()){
             return false;
         }
         return true;
     }
 
-    int returnNOfOreAfterTimestep(){
-        return ore + oreRobots;
+    int returnQualityLevelAtOneMoreTimestep(){
+        return id*(geo + geoRobots);
     }
 
 private:
     int calculatePossibleMaxGeo(){
-        int timeRemaining = 25 - time; // t
-        int maxFromCurrentRobots = geoRobots * timeRemaining;
-        int maxFromFutureRobots = timeRemaining * (timeRemaining + 1) / 2;  // optimistic: we build 1 geo robot each minute from now on
+        
+        int maxFromCurrentRobots = geoRobots * time;
+        int maxFromFutureRobots = time * (time + 1) / 2;  // optimistic: we build 1 geo robot each minute from now on
         return geo + maxFromCurrentRobots + maxFromFutureRobots;
     }
 
@@ -188,6 +188,7 @@ int main(){
     }
 
 
+    int totalQualityLevel = 0;
     // go through each blueprint
     for (int i = 0; i < id.size(); i++){
         RobotCollection c = RobotCollection(id[i], ore_costInOre[i], clay_costInOre[i], obs_costInOre[i], obs_costInClay[i], geo_costInOre[i], geo_costInObs[i]);
@@ -200,8 +201,8 @@ int main(){
         int currentBestGeo = 0;
 
         // other 22 minutes  -> in the last minute, it is not worth to build anything
-        for (int j = 0 + 2; j < 22 + 2; j++){  // + 2 becouse we start at minute 2
-            while (possibilities.front().time == j - 1){
+        for (int j = 23 ; j > 1; j--){  // + 2 becouse we start at minute 2
+            while (possibilities.front().time == j + 1){
                 RobotCollection current = possibilities.front(); possibilities.pop_front();
 
                 // 5 possibilities: wait, build 1 of each robots
@@ -261,12 +262,25 @@ int main(){
                 }*/
 
             }
-            std::cout << "j: " << j << std::endl;
-            std::cout << "possibilities.size(): " << possibilities.size() << std::endl;
+            std::cout << "i: " << i << ", j: " << j <<  ", possibilities.size(): " << possibilities.size() << std::endl;
+            
         }
 
+        
         // minute 24
         // go though queueueue, calculate last minute
+        auto it = possibilities.begin();
+
+        int currentMaxQualityLevel = 0;
+
+        while (it != possibilities.end()){
+            int currentQualityLevel = (*it).returnQualityLevelAtOneMoreTimestep();
+            currentMaxQualityLevel = std::max(currentQualityLevel, currentMaxQualityLevel);
+            it++;
+        }
+
+        totalQualityLevel += currentMaxQualityLevel;
+
     }
 
 
