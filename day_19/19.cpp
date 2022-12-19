@@ -216,10 +216,8 @@ int main(){
 
         // other 22 minutes  -> in the last minute, it is not worth to build anything
         for (int j = 23 ; j > 1; j--){  // + 2 becouse we start at minute 2
-            if (j == 2){
-                std::cout <<"lel" << std::endl;
-            }
-            while (possibilities.front().time == j + 1){
+            
+            while (!possibilities.empty() && possibilities.front().time == j){
                 RobotCollection current = possibilities.front(); possibilities.pop_front();
 
                 // 5 possibilities: wait, build 1 of each robots
@@ -228,13 +226,13 @@ int main(){
                     currentBestGeo = std::max(currentBestGeo, current.calculateAvailableMaxGeo());
                 
                     RobotCollection wait = current;
-                    RobotCollection_2 r2;
+                    
 
 
                 
                     wait.waitForResources();
 
-                    if (wait.isBetterThanCurrentBest(currentBestGeo)){
+                    if (wait.isBetterThanCurrentBest(currentBestGeo) || j == 2){
                         possibilities.push_back(wait);
                         //currentBestGeo = std::max(currentBestGeo, wait.calculateAvailableMaxGeo());
                     }       
@@ -243,7 +241,7 @@ int main(){
                         RobotCollection geo = current;
                         geo.buildGeoRobot();
 
-                        if (geo.isBetterThanCurrentBest(currentBestGeo)){
+                        if (geo.isBetterThanCurrentBest(currentBestGeo) || j == 2){
                             possibilities.push_back(geo);
                             //currentBestGeo = std::max(currentBestGeo, geo.calculateAvailableMaxGeo());
                         }
@@ -253,7 +251,7 @@ int main(){
                         RobotCollection ore = current;
                         ore.buildOreRobot();
                         
-                        if (ore.isBetterThanCurrentBest(currentBestGeo)){
+                        if (ore.isBetterThanCurrentBest(currentBestGeo) || j == 2){
                             possibilities.push_back(ore);
                             //currentBestGeo = std::max(currentBestGeo, ore.calculateAvailableMaxGeo());
                         }
@@ -262,7 +260,7 @@ int main(){
                         RobotCollection clay = current;
                         clay.buildClayRobot();
 
-                        if (clay.isBetterThanCurrentBest(currentBestGeo)){
+                        if (clay.isBetterThanCurrentBest(currentBestGeo) || j == 2){
                             possibilities.push_back(clay);
                             //currentBestGeo = std::max(currentBestGeo, clay.calculateAvailableMaxGeo());
                         }
@@ -272,7 +270,7 @@ int main(){
                         RobotCollection obs = current;
                         obs.buildObsRobot();
 
-                        if (obs.isBetterThanCurrentBest(currentBestGeo)){
+                        if (obs.isBetterThanCurrentBest(currentBestGeo) || j == 2){
                             possibilities.push_back(obs);
                             currentBestGeo = std::max(currentBestGeo, obs.calculateAvailableMaxGeo());
                         }
