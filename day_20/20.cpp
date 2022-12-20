@@ -68,12 +68,16 @@ int main(){
 
         if (val > 0){
             newpos = idx_from + val;
+            int np = newpos / N;
+            newpos = newpos - np*N + np;
             while (newpos >= N){
                 newpos -= N;
                 newpos++;
             }
         }else{  // val < 0
             newpos = idx_from + val;
+            int np = newpos / N;
+            newpos = newpos - np*N + np;
             while (newpos < 0){
                 newpos += N;
                 newpos--;
