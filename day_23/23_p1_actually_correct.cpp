@@ -12,10 +12,7 @@
 
 #define SIZE_OF_SQUARE_INPUT 72
 
-#define SIZE_OF_MAP 2000   // input will be offset by  OFFSET
-#define OFFSET 950
-// now all 2598 of them can fit in 1 single row lol
-
+#define SIZE_OF_MAP 122  // input will be offset by 20,20
 
 struct pos{
     int row;
@@ -144,7 +141,7 @@ int main(){
     /*printVecofVec<bool>(map);
     std::cout << std::endl << std::endl << std::endl;*/
 
-    const int offset = OFFSET;
+    const int offset = 20;
     for (int row = 0; row < v.size(); row++){
         for (int col = 0; col < v[0].size(); col++){
             if (v[row][col] == '#'){
@@ -154,8 +151,8 @@ int main(){
     }
 
 
-    std::cout << "before starting" << std::endl;
-    /*printVecofVec<bool>(map);
+    /*std::cout << "before starting" << std::endl;
+    printVecofVec<bool>(map);
     std::cout << std::endl << std::endl << std::endl;*/
 
     std::vector<std::vector<int>> proposed_map_counts_INIT (size_of_map, std::vector<int>(size_of_map));
@@ -166,8 +163,8 @@ int main(){
     }
 
 
-    int i = 0;
-    for (i = 0; i < 100000; i++){
+
+    for (int i = 0; i < 10; i++){
         // i % 4 = 0 : north, 1 : south, 2 : west, 3 : east
         // 10 moves like this
 
@@ -175,39 +172,7 @@ int main(){
         std::vector<std::vector<int>> proposed_map_counts = proposed_map_counts_INIT;
 
 
-        // check all points for neighbors
-        bool thereareneighbors_part2 = false;
-        for (int row = 0; row < size_of_map; row++){
-            for (int col = 0; col < size_of_map; col++){
-                if (map[row][col]){
-                    // there is an elf here
-
-                    
-                    
-                    for (int r_ofs : {-1,0,1}){
-                        for (int c_ofs : {-1,0,1}){
-                            if (r_ofs == 0 && c_ofs == 0){
-                                // nothing
-                            }else{
-                                if (map[row + r_ofs][col + c_ofs]){
-                                    thereareneighbors_part2 = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        if (!thereareneighbors_part2){
-            break;
-        }
-
-
-
-
-        bool didanyelvesmove = false;
-
-        std::vector<std::vector<bool>> new_map = map;
+         std::vector<std::vector<bool>> new_map = map;
 
         // go through each elf and create proposition map
         for (int row = 0; row < size_of_map; row++){
@@ -237,7 +202,6 @@ int main(){
                     }else{
                         // OPTION 2: there are neighbors -> try to move
                         //  1. fill proposed map 
-                        didanyelvesmove = true;
                         pos proposition = proposeNewPos(map, {row, col}, i);
                         proposed_map_counts[proposition.row][proposition.col]++; 
                     }                   
@@ -246,7 +210,6 @@ int main(){
             }  // for col
         }  // for row
 
-        
 
         // go through each elf again and move if possible
         for (int row = 0; row < size_of_map; row++){
@@ -293,15 +256,65 @@ int main(){
         std::cout << "at round i = "  << i << std::endl;
         /*printVecofVec<bool>(map);
         std::cout << std::endl << std::endl << std::endl;*/
-        /*if (!didanyelvesmove){
-            break;
-        }*/
     }  // for i (10 steps)
 
 
-    
-    
-    std::cout << "round where we didn't move at all: " << i + 1 << std::endl;  // 1001 too low
+    int min_row = -1;
+    int max_row = -1;
+    int min_col = -1;
+    int max_col = -1;
+
+    for (int r = 0; r < size_of_map; r++){
+        for (int c = 0; c < size_of_map; c++){
+            if (map[r][c]){
+                // found element
+                min_row = r;
+                goto MIN_ROW_FOUND;
+            }
+        }
+    }
+MIN_ROW_FOUND:
+    for (int r = size_of_map - 1; r >= 0 ; r--){
+        for (int c = 0; c < size_of_map; c++){
+            if (map[r][c]){
+                // found element
+                max_row = r;
+                goto MAX_ROW_FOUND;
+            }
+        }
+    }
+MAX_ROW_FOUND:
+    for (int c = 0; c < size_of_map; c++){
+        for (int r = 0; r < size_of_map; r++){
+            if (map[r][c]){
+                // found element
+                min_col = c;
+                goto MIN_COL_FOUND;
+            }
+        }
+    }
+MIN_COL_FOUND:
+    for (int c = size_of_map - 1; c > 0 ; c--){
+        for (int r = 0; r < size_of_map; r++){
+            if (map[r][c]){
+                // found element
+                max_col = c;
+                goto MAX_COL_FOUND;
+            }
+        }
+    }
+MAX_COL_FOUND:
+
+    int count = 0;
+    for (int r = min_row; r <= max_row; r++){
+        for (int c = min_col; c <= max_col; c++){
+            if (!map[r][c]){
+                count++;
+            }
+        }
+    }
+
+    std::cout << "count of empty space: " << count << std::endl;  
 
 
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - startTime).count();
@@ -511,32 +524,6 @@ Simulate the Elves' process and find the smallest rectangle that contains the El
 
 Your puzzle answer was 3882.
 
---- Part Two ---
-It seems you're on the right track. Finish simulating the process and figure out where the Elves need to go. How many rounds did you save them?
+The first half of this puzzle is complete! It provides one gold star: *
 
-In the example above, the first round where no Elf moved was round 20:
-
-.......#......
-....#......#..
-..#.....#.....
-......#.......
-...#....#.#..#
-#.............
-....#.....#...
-..#.....#.....
-....#.#....#..
-.........#....
-....#......#..
-.......#......
-Figure out where the Elves need to go. What is the number of the first round where no Elf moves?
-
-Your puzzle answer was 1116.
-
-Both parts of this puzzle are complete! They provide two gold stars: **
-
-At this point, you should return to your Advent calendar and try another puzzle.
-
-If you still want to see it, you can get your puzzle input.
-
-You can also [Share] this puzzle.
 */
